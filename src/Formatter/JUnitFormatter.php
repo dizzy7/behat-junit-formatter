@@ -85,19 +85,20 @@ class JUnitFormatter implements Formatter
      * @var \Exception|null
      */
     protected $lastStepFailureException;
+    /** @var string */
+    private $suitePrefix;
 
     /**
-     * __construct
-     *
      * @param mixed $filename
      * @param mixed $outputDir
      */
-    public function __construct($filename, $outputDir)
+    public function __construct($filename, $outputDir, $suitePrefix)
     {
         $this->printer        = new FileOutputPrinter($filename, $outputDir);
         $this->testsuiteTimer = new Timer();
         $this->testcaseTimer  = new Timer();
         $this->outputDir      = $outputDir;
+        $this->suitePrefix    = $suitePrefix;
     }
 
     /**
@@ -172,10 +173,13 @@ class JUnitFormatter implements Formatter
         $this->xml = new \SimpleXmlElement('<?xml version="1.0" encoding="utf-8"?><testsuites></testsuites>');
 
         $testsuite = $this->xml->addChild('testsuite');
-        $testsuite->addAttribute('name', $event->getSuite()->getName());
+        $suiteName = $event->getSuite()->getName();
+        if ($this->suitePrefix) {
+            $suiteName = $this->suitePrefix . $suiteName;
+        }
+        $testsuite->addAttribute('name', $suiteName);
 
-        $this->currentTestsuite = $testsuite = $this->xml->addChild('testsuite');
-        $testsuite->addAttribute('name', $feature->getTitle());
+        $this->currentTestsuite = $testsuite;
 
         $this->testsuiteStats =  array(
             TestResult::PASSED    => 0,

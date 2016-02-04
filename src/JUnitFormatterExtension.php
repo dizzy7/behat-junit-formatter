@@ -17,6 +17,7 @@ class JUnitFormatterExtension implements ExtensionInterface
 {
     const ENV_FILENAME = 'BEHAT_JUNIT_FILENAME';
     const ENV_OUTPUTDIR = 'BEHAT_JUNIT_OUTPUTDIR';
+    const ENV_SUITE_PREFIX = 'BEHAT_JUNIT_SUITE_PREFIX';
 
     /**
      * process
@@ -55,6 +56,7 @@ class JUnitFormatterExtension implements ExtensionInterface
     {
         $builder->children()->scalarNode('filename')->defaultValue('test_report.xml');
         $builder->children()->scalarNode('outputDir')->defaultValue('build/tests');
+        $builder->children()->scalarNode('suitePrefix')->defaultNull();
     }
 
     /**
@@ -71,14 +73,17 @@ class JUnitFormatterExtension implements ExtensionInterface
         if (!$filename = \getenv(self::ENV_FILENAME)) {
             $filename = $config['filename'];
         }
-
         $definition->addArgument($filename);
 
         if (!$outputDir = \getenv(self::ENV_OUTPUTDIR)) {
             $outputDir = $config['outputDir'];
         }
-
         $definition->addArgument($outputDir);
+
+        if (!$suitePrefix = \getenv(self::ENV_OUTPUTDIR)) {
+            $suitePrefix = $config['suitePrefix'];
+        }
+        $definition->addArgument($suitePrefix);
 
         $container->setDefinition('junit.formatter', $definition)
             ->addTag('output.formatter');
